@@ -171,9 +171,9 @@ public class SettingsPage {
         ((JavascriptExecutor) driver).executeScript(
             "arguments[0].scrollTop = 0", popup
         );
-//
-//        // 5️⃣ Close popup
-//        wait.until(ExpectedConditions.elementToBeClickable(closeBtn)).click();
+
+        // 5️⃣ Close popup
+        wait.until(ExpectedConditions.elementToBeClickable(closeBtn)).click();
     }
             
 //    // Check if Tracking Page section is visible
