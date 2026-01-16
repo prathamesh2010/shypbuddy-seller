@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Suite">
+  <test thread-count="5" name="ShypBuddySeller">
+    <classes>
+      <class name="shypbuddySeller1.TestClass3"/>
+      <class name="shypbuddySeller1.TestClass2"/>
+      <class name="shypbuddySeller1.TestClass1"/>
+      <class name="tests.BaseTest"/>
+      <class name="tests.LoginTest"/>
+      <class name="shypbuddySeller1.BasicTest"/>
+      <class name="shypbuddySeller1.TestAttributes"/>
+    </classes>
+  </test> <!-- ShypBuddySeller -->
+</suite> <!-- Suite -->

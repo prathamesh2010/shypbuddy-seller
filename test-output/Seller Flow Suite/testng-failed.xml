@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Failed suite [Seller Flow Suite]" guice-stage="DEVELOPMENT">
+  <test thread-count="5" name="Full Flow(failed)">
+    <classes>
+      <class name="tests.PickupAddressTest">
+        <methods>
+          <include name="addNewAddress"/>
+          <include name="tearDown"/>
+          <include name="setUp"/>
+        </methods>
+      </class> <!-- tests.PickupAddressTest -->
+    </classes>
+  </test> <!-- Full Flow(failed) -->
+</suite> <!-- Failed suite [Seller Flow Suite] -->
