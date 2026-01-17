@@ -57,12 +57,12 @@ public class SettingsPage {
         // 6️⃣ Ensure Settings page is visible again
         wait.until(ExpectedConditions.visibilityOfElementLocated(kycSection));
 
-        Thread.sleep(5000     );
+        //Thread.sleep(2000);
     }
     
     
 
-    private By changePartnerBtn = By.xpath("//button[normalize-space()='Change Partner Preference']");
+    private By changePartnerBtn = By.xpath("//button[normalize-space()='Set Partner Preference']");
     private By selectPartnerBtn = By.xpath("//button[normalize-space()='Select Partner']");
     // Wait until dropdown content appears
     private By scrollBoxLocator = By.xpath("//div[@data-slot='content' and @data-open='true']");
@@ -70,76 +70,109 @@ public class SettingsPage {
     
     public void partnerpref(String partnerName) throws InterruptedException {
 
-        // 1️⃣ Click "Change Partner Preference"
+        // 1️⃣ Wait for button to be PRESENT in DOM
         WebElement changeBtn = wait.until(
-            ExpectedConditions.elementToBeClickable(changePartnerBtn)
+            ExpectedConditions.presenceOfElementLocated(changePartnerBtn)
         );
 
+        // 2️⃣ Ensure it is visible via JS (React sometimes lies to Selenium)
         ((JavascriptExecutor) driver).executeScript(
             "arguments[0].scrollIntoView({block:'center'});", changeBtn
         );
+
+        // 3️⃣ HARD WAIT for animations / overlays
+        wait.until(driver -> changeBtn.isDisplayed());
+
+        // 4️⃣ CLICK using JS ONLY
         ((JavascriptExecutor) driver).executeScript(
             "arguments[0].click();", changeBtn
         );
-        
-        Thread.sleep(3000);
 
-        // 2️⃣ Click "Select Partner"
+        // ⏳ let modal animate open
+        wait.until(ExpectedConditions.presenceOfElementLocated(selectPartnerBtn));
+
+
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+
+        // 1️⃣ Click Select Partner
         WebElement selectBtn = wait.until(
             ExpectedConditions.elementToBeClickable(selectPartnerBtn)
         );
+        js.executeScript("arguments[0].click();", selectBtn);
 
-        ((JavascriptExecutor) driver).executeScript(
-            "arguments[0].click();", selectBtn
-        );
-
-        // 3️⃣ Wait for dropdown container
-        WebElement scrollBox = wait.until(
+        // 2️⃣ Wait for dropdown
+        WebElement dropdown = wait.until(
             ExpectedConditions.visibilityOfElementLocated(scrollBoxLocator)
         );
 
-        // 4️⃣ Get all partner options
-        List<WebElement> partners = scrollBox.findElements(
-            By.xpath(".//div[contains(@class,'cursor-pointer')]")
-        );
+        for (int i = 0; i < 20; i++) {
 
-        // 5️⃣ Select matching partner
-        for (WebElement partner : partners) {
+            // 🔥 FIND BY TEXT NODE, NOT getText()
+            List<WebElement> options = dropdown.findElements(
+                By.xpath(".//*[contains(text(),'" + partnerName + "')]")
+            );
 
-            String text = partner.getText().trim();
+            if (!options.isEmpty()) {
 
-            if (text.equalsIgnoreCase(partnerName)) {
+                WebElement option = options.get(0);
 
-                ((JavascriptExecutor) driver).executeScript(
-                    "arguments[0].scrollIntoView({block:'center'});", partner
+                js.executeScript(
+                    "arguments[0].scrollIntoView({block:'center'});",
+                    option
                 );
 
-                ((JavascriptExecutor) driver).executeScript(
-                    "arguments[0].click();", partner
+                js.executeScript(
+                    "arguments[0].click();",
+                    option
                 );
 
-                return;
+                return; // ✅ SUCCESS
             }
+
+            // Scroll dropdown
+            js.executeScript(
+                "arguments[0].scrollTop = arguments[0].scrollTop + 150",
+                dropdown
+            );
+
+            try { Thread.sleep(300); } catch (Exception ignored) {}
         }
 
         throw new RuntimeException("❌ Partner not found: " + partnerName);
     }
+        //Thread.sleep(5000);
     
+
     
     
     private By addButton = By.xpath("//button[normalize-space()='Add']");
-    public void addButton() {
+    
+    public void addButton() throws InterruptedException {
     	
     	wait.until(ExpectedConditions.elementToBeClickable(addButton)).click();
-    	
-    	By svgButton = By.xpath("//button[.//svg]");
-
-    	wait.until(ExpectedConditions.elementToBeClickable(svgButton)).click();
+       	    
+    	Thread.sleep(2000);
     }
+    
+    private By svgButton = By.xpath(
+    	    "//div[contains(@class,'fixed') and contains(@class,'inset-0')]//button[.//*[name()='svg']]"
+    	);
+    public void closeButton() {
+
+        WebElement close = wait.until(
+            ExpectedConditions.elementToBeClickable(svgButton)
+        );
+
+        ((JavascriptExecutor) driver).executeScript(
+            "arguments[0].click();", close
+        );
+    }
+    
     
  // Open popup
     private By viewRatesLink =
         By.xpath("//p[normalize-space()='Click to view rates']");
+    
 
     // Rate Master popup container (scrollable)
     private By rateMasterPopup =
@@ -149,30 +182,38 @@ public class SettingsPage {
     private By closeBtn =
         By.xpath("//button[normalize-space()='Close']");
     
-    public void viewRatesAndScrollThenClose() {
+    private By rateMasterScrollContainer = By.xpath(
+    	    "//div[contains(@class,'overflow-y-auto')]"
+    	);
+    
+    public void viewRatesAndScrollThenClose() throws InterruptedException {
 
         // 1️⃣ Open popup
         wait.until(ExpectedConditions.elementToBeClickable(viewRatesLink)).click();
 
-        // 2️⃣ Wait for popup visible
-        WebElement popup = wait.until(
-            ExpectedConditions.visibilityOfElementLocated(rateMasterPopup)
+        // 2️⃣ Wait for Rate Master table to ensure popup opened
+        wait.until(ExpectedConditions.visibilityOfElementLocated(rateMasterPopup));
+
+        // 3️⃣ Get the ACTUAL scrollable container (NOT table)
+        WebElement scrollContainer = wait.until(
+            ExpectedConditions.visibilityOfElementLocated(rateMasterScrollContainer)
         );
 
-        // 3️⃣ Scroll inside popup (bottom)
+        // 4️⃣ Scroll to bottom
         ((JavascriptExecutor) driver).executeScript(
-            "arguments[0].scrollTop = arguments[0].scrollHeight", popup
+            "arguments[0].scrollTop = arguments[0].scrollHeight",
+            scrollContainer
         );
 
-        // Optional: wait to visually confirm
-        try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+        Thread.sleep(1000);
 
-        // 4️⃣ Scroll back to top (optional)
+        // 5️⃣ Scroll back to top (optional)
         ((JavascriptExecutor) driver).executeScript(
-            "arguments[0].scrollTop = 0", popup
+            "arguments[0].scrollTop = 0",
+            scrollContainer
         );
 
-        // 5️⃣ Close popup
+        // 6️⃣ Close popup
         wait.until(ExpectedConditions.elementToBeClickable(closeBtn)).click();
     }
             

@@ -19,10 +19,11 @@ public class SettingPageTest extends BaseTest {
         set.openSettings();
 
         // 2️⃣ Change partner preference
-        set.partnerpref("Bluedart Surface");
+        set.partnerpref("DELHIVERY 5KG");
 
         // 3️⃣ Click Add button
         set.addButton();
+        set.closeButton();
 
         // 4️⃣ Open Rate Master popup, scroll & close
         set.viewRatesAndScrollThenClose();
