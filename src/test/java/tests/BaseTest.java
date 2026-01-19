@@ -29,7 +29,7 @@ public class BaseTest extends BaseDriver {
         driver.get("https://seller.shypbuddy.net/sign-in");
 
         SellerLoginPage login = new SellerLoginPage(driver);
-        login.login("Harshit.d@shypbuddy.com", "H@rsh_2025");
+        login.login("shitaltest9393@gmail.com", "Shital@2025");
 
         // VERIFY LOGIN
         Assert.assertTrue(

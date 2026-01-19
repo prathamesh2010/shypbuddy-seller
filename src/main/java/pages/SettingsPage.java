@@ -154,6 +154,13 @@ public class SettingsPage {
     	Thread.sleep(2000);
     }
     
+    private By switchButton = By.xpath("//button[normalize-space()='Switch']");
+    		public void switchPartner() throws InterruptedException {
+    			wait.until(ExpectedConditions.elementToBeClickable(switchButton)).click();         	    
+    	    	Thread.sleep(3000);
+    			
+    		}
+    
     private By svgButton = By.xpath(
     	    "//div[contains(@class,'fixed') and contains(@class,'inset-0')]//button[.//*[name()='svg']]"
     	);
@@ -182,40 +189,98 @@ public class SettingsPage {
     private By closeBtn =
         By.xpath("//button[normalize-space()='Close']");
     
-    private By rateMasterScrollContainer = By.xpath(
-    	    "//div[contains(@class,'overflow-y-auto')]"
+    private By rateMasterScrollContainer = By.xpath("//div[@id='r2']"
     	);
+    
+    private By lastRateRow = By.xpath(
+    	    "//table[@aria-label='Rate Master Table']//tr[last()]"
+    	);
+    
     
     public void viewRatesAndScrollThenClose() throws InterruptedException {
 
         // 1️⃣ Open popup
         wait.until(ExpectedConditions.elementToBeClickable(viewRatesLink)).click();
 
-        // 2️⃣ Wait for Rate Master table to ensure popup opened
-        wait.until(ExpectedConditions.visibilityOfElementLocated(rateMasterPopup));
+        // 2️⃣ Wait until popup header appears (CONFIRM popup is open)
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
+            By.xpath("//span[text()='Rate Master']")
+        ));
 
-        // 3️⃣ Get the ACTUAL scrollable container (NOT table)
+        // 3️⃣ Wait for REAL scroll container
         WebElement scrollContainer = wait.until(
-            ExpectedConditions.visibilityOfElementLocated(rateMasterScrollContainer)
+            ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//section[@role='dialog']//div[contains(@class,'overflow-y-auto')]")
+            )
         );
+        
+        Thread.sleep(5000);
 
-        // 4️⃣ Scroll to bottom
-        ((JavascriptExecutor) driver).executeScript(
-            "arguments[0].scrollTop = arguments[0].scrollHeight",
-            scrollContainer
-        );
+//        // 4️⃣ Scroll DOWN
+//        ((JavascriptExecutor) driver).executeScript(
+//            "arguments[0].scrollTop = arguments[0].scrollHeight;",
+//            scrollContainer
+//        );
+//
+//        Thread.sleep(1500); // IMPORTANT: allow human-visible scroll
+//
+//        // 5️⃣ Scroll UP (optional)
+//        ((JavascriptExecutor) driver).executeScript(
+//            "arguments[0].scrollTop = 0;",
+//            scrollContainer
+//        );
+//
+//        Thread.sleep(10000); // keep popup open
 
-        Thread.sleep(1000);
-
-        // 5️⃣ Scroll back to top (optional)
-        ((JavascriptExecutor) driver).executeScript(
-            "arguments[0].scrollTop = 0",
-            scrollContainer
-        );
-
-        // 6️⃣ Close popup
-        wait.until(ExpectedConditions.elementToBeClickable(closeBtn)).click();
+        // 6️⃣ NOW close popup
+        wait.until(ExpectedConditions.elementToBeClickable(
+            By.xpath("//button[normalize-space()='Close']")
+        )).click();
     }
+    
+    private By pageSettings = By.xpath("//p[normalize-space()='Page Settings']");
+    private By trackingTab = By.xpath("//button[normalize-space()='Tracking']");
+    private By paidTrackingTab = By.xpath("//button[normalize-space()='Paid Tracking']");
+    private By awbInput = By.xpath("//input[@placeholder='Enter AWB']");
+    private By trackBtn = By.xpath("//button[normalize-space()='Track']");
+    
+    public void settingPageClick(String awb) throws InterruptedException {
+    	wait.until(ExpectedConditions.elementToBeClickable(pageSettings)).click();
+    	Thread.sleep(1000);
+    	
+
+        // 1️⃣ Click Paid Tracking
+        WebElement paidTracking = wait.until(
+            ExpectedConditions.elementToBeClickable(paidTrackingTab)
+        );
+        paidTracking.click();
+
+        Thread.sleep(2000);
+
+        // 3️⃣ Navigate back
+        //driver.navigate().back();
+
+        // 4️⃣ Wait for Tracking tab and click
+        WebElement tracking = wait.until(
+            ExpectedConditions.elementToBeClickable(trackingTab)
+        );
+        tracking.click();
+
+        // 5️⃣ Enter AWB
+        WebElement awbField = wait.until(
+            ExpectedConditions.visibilityOfElementLocated(awbInput)
+        );
+        awbField.clear();
+        awbField.sendKeys(awb);
+
+        // 6️⃣ Click Track/Search
+        WebElement trackButton = wait.until(
+            ExpectedConditions.elementToBeClickable(trackBtn)
+        );
+        trackButton.click();
+        Thread.sleep(5000);
+    }
+
             
 //    // Check if Tracking Page section is visible
 //    public boolean isTrackingPageVisible() {

@@ -23,10 +23,12 @@ public class SettingPageTest extends BaseTest {
 
         // 3️⃣ Click Add button
         set.addButton();
+        set.switchPartner();
         set.closeButton();
 
         // 4️⃣ Open Rate Master popup, scroll & close
         set.viewRatesAndScrollThenClose();
+        set.settingPageClick("76760061685");
     }
 }
  
